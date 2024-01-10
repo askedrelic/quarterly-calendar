@@ -1,0 +1,17 @@
+{{ define "main" }}
+
+<div id="app"></div>
+{{ with resources.Get "index.jsx" }}
+{{ $options := dict "defines" (dict "process.env.NODE_ENV" "\"development\"" "process.env.BaseURL" (printf `"%s"` $.Site.BaseURL)) }}
+{{ $script := . | js.Build $options }}
+<script src="{{ $script.RelPermalink }}" defer></script>
+
+<!-- <style>
+    * {
+      border: solid 1px black;
+    }
+  </style> -->
+{{ end }}
+
+
+{{ end }}
