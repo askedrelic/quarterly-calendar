@@ -1,17 +1,10 @@
 {{ define "main" }}
 
+{{ $style := resources.Get "index.css" | postCSS }}
+<link rel="stylesheet" href="{{ $style.Permalink }}">
+
 <div id="app"></div>
-{{ with resources.Get "index.jsx" }}
-{{ $options := dict "defines" (dict "process.env.NODE_ENV" "\"development\"" "process.env.BaseURL" (printf `"%s"` $.Site.BaseURL)) }}
-{{ $script := . | js.Build $options }}
-<script src="{{ $script.RelPermalink }}" defer></script>
-
-<!-- <style>
-    * {
-      border: solid 1px black;
-    }
-  </style> -->
-{{ end }}
-
+{{ $js := resources.Get "index.jsx" | js.Build }}
+<script src="{{ $js.RelPermalink }}" defer></script>
 
 {{ end }}
