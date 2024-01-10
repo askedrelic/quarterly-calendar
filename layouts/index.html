@@ -1,7 +1,7 @@
 {{ define "main" }}
 
 {{ $style := resources.Get "index.css" | postCSS }}
-<link rel="stylesheet" href="{{ $style.Permalink }}">
+<link rel="stylesheet" href="{{ $style.RelPermalink }}">
 
 <div id="app"></div>
 {{ $js := resources.Get "index.jsx" | js.Build }}
