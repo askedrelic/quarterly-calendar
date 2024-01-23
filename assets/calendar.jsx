@@ -1,36 +1,17 @@
 import React from 'react';
+import { useState } from 'react';
 import * as _ from "lodash";
 
-const daysInMonthMap = new Map([
-    ['January', 4],
-    ['Feb', 4], // Leap years not considered for simplicity
-    ['March', 5],
-    ['April', 4],
-    ['May', 4],
-    ['June', 4],
-    ['July', 31],
-    ['August', 31],
-    ['September', 30],
-    ['October', 31],
-    ['November', 30],
-    ['December', 31],
-]);
-
+// terrible hack, but mostly works for 2024/2025/2026
+const spacesMonth = [3, 3, 4, 3, 3, 4, 3, 3, 4, 3, 3, 3];
 const BLANK = "\u00A0";
-const Calendar = () => {
 
-    const queryParams = new URLSearchParams(window.location.search);
-
-    // Default to this year
-    const year = queryParams.get('year') ?? 2024;
-    let month = 0;
-    // Default to 1-12 month index when manually entered
-    if (queryParams.get('month')) {
-        month = queryParams.get('month') + 1;
-    }
+const Calendar = (props) => {
+    const month = props.month;
+    const year = props.year;
 
     const currentDate = new Date(year, month, 1);
-    console.log(currentDate);
+    console.log(currentDate, month, year);
     const numMonthsToShow = 3;
     let allDays = [];
 
@@ -47,20 +28,34 @@ const Calendar = () => {
         }
     }
 
-
+    // Calculate the days in the month and monthly row spacing
+    let countMonths = [];
     for (let i = 1; i <= numMonthsToShow; i++) {
         const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
         nextMonth.setDate(nextMonth.getDate() - 1);
         const daysInMonth = nextMonth.getDate();
         const calendarDays = _.range(1, daysInMonth + 1);
         allDays.push(...calendarDays);
+
+        // hack for spacing out months
+        countMonths.push(nextMonth.toLocaleString('default', { month: 'short' }));
+        let blanks = new Array(spacesMonth[nextMonth.getMonth()]).fill(BLANK);
+        countMonths.push(...blanks);
     }
 
-    let countWeeks = Array.from({ length: allDays.length / 7 }, (_, index) => index + 1);
-    let countMonths = ['Jan', BLANK, BLANK, BLANK, 'Feb', "\u00A0", "\u00A0", "\u00A0", 'March', "\u00A0", "\u00A0", "\u00A0"];
+    // more hacks for finding the calendar week number
+    let offset = 1;
+    for (let i = 0; i <= currentDate.getMonth() - 1; i++) {
+        offset += spacesMonth[i] + 1;
+    }
+    // TODO reset for dec/jan, but I'm going to leave this broken for now
+
+    // 13 or 14 weeks in a quarter?
+    let extraWeek = allDays.length > 91 ? 1 : 0;
+    let countWeeks = _.range(offset, offset + countMonths.length + extraWeek);
     return (
-        <div className="">
-            <div className="w-2/5 h-screen text-center text-2xl">
+        <div className="opacity-30 print:opacity-100" id="calendar">
+            <div className="w-2/5 h-screen text-center text-2xl ">
 
                 <div className="grid grid-cols-10 border-b">
                     <div className="col-span-2 text-gray-600">Month</div>
@@ -88,10 +83,7 @@ const Calendar = () => {
                     <div className="col-span-7">
                         <div className="grid grid-cols-7 gap-y-5">
                             {allDays.map((day, index) => (
-                                <div
-                                    key={index}
-                                    className={day == 1 ? "bg-gray-300" : ""}
-                                >
+                                <div key={index} className={day == 1 ? "bg-gray-300" : ""}>
                                     {day}
                                 </div>
                             ))}
