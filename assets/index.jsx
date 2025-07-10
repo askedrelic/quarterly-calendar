@@ -14,9 +14,10 @@ const App = () => {
   const [year, setyear] = useState(queryYear ? parseInt(queryYear, 10) : now.getFullYear());
   // Default to 1-12 month index when manually entered
   const queryMonth = queryParams.get('month');
-  // Default to next month
+  // Default to current month. I tried next month, but find myself wanting to do
+    // current month more frequently.
   // TODO make this more easily configurable
-  const [month, setMonth] = useState(queryMonth ? parseInt(queryMonth, 10) - 1 : now.getMonth() + 1);
+  const [month, setMonth] = useState(queryMonth ? parseInt(queryMonth, 10) - 1 : now.getMonth());
 
   return (
     <div>
